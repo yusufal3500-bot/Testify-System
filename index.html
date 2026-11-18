@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examify Operator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(239, 68, 68, 0.2); }
+        .glow-red { box-shadow: 0 0 25px rgba(239, 68, 68, 0.4); }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-rose-500 selection:text-white">
+
+    <!-- AUTH SCREEN -->
+    <div id="authScreen" class="flex items-center justify-center min-h-screen p-4">
+        <div class="glass p-8 rounded-2xl w-full max-w-md glow-red relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-rose-500/20 rounded-full blur-2xl"></div>
+            <div class="text-center mb-6">
+                <div class="inline-flex p-3 bg-rose-500/10 rounded-2xl border border-rose-500/30 text-rose-400 text-3xl mb-3">
+                    <i class="fa-solid fa-server"></i>
+                </div>
+                <h1 id="authTitle" class="text-2xl font-bold tracking-wider text-rose-400">EXAMIFY OPERATOR</h1>
+                <p id="authSubtitle" class="text-xs text-slate-400 mt-1">Pusat Komando & Database Server</p>
+            </div>
+            
+            <form id="authForm" class="space-y-4">
+                <div id="regFields" class="hidden space-y-4">
+                    <div>
+                        <label class="text-xs text-slate-300 font-medium">NAMA OPERATOR</label>
+                        <input type="text" id="regName" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rose-500" placeholder="Operator Utama">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-xs text-slate-300 font-medium">SERVER SEKOLAH</label>
+                    <input type="text" value="MAN 1's Server" readonly class="w-full mt-1 bg-slate-900/50 border border-slate-700/50 rounded-xl px-4 py-3 text-sm text-rose-300 font-semibold cursor-not-allowed">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-300 font-medium">KODE PERANGKAT OPERATOR</label>
+                    <input type="text" id="deviceCode" required class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rose-500" placeholder="OPT-01">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-300 font-medium">SANDI AKSES</label>
+                    <input type="password" id="authPassword" required class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rose-500" placeholder="••••••••">
+                </div>
+
+                <button type="submit" id="authSubmitBtn" class="w-full py-3.5 bg-gradient-to-r from-rose-600 to-red-700 hover:from-rose-500 rounded-xl font-bold text-white shadow-lg shadow-rose-500/25 transition">MASUK COMMAND CENTER</button>
+
+                <div class="text-center pt-2">
+                    <button type="button" onclick="toggleAuthMode()" id="toggleAuthText" class="text-xs text-rose-400 hover:underline">Belum buat akun operator? Buat disini</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD -->
+    <div id="mainDashboard" class="hidden min-h-screen flex flex-col">
+        <header class="glass border-b border-rose-500/20 px-6 py-4 flex flex-wrap justify-between items-center gap-4 sticky top-0 z-50">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400"><i class="fa-solid fa-server text-xl"></i></div>
+                <div>
+                    <h2 class="font-bold text-rose-400 tracking-wider text-sm">Examify Operator</h2>
+                    <p class="text-xs text-slate-400">MAN 1's Server (Active)</p>
+                </div>
+            </div>
+            <div class="bg-slate-900/60 px-4 py-2 rounded-xl border border-slate-800 text-xs font-semibold">
+                <i class="fa-regular fa-clock text-rose-400 mr-1.5"></i><span id="liveClock">--:--:--</span> WIB
+            </div>
+        </header>
+
+        <nav class="bg-slate-900/80 border-b border-slate-800 px-6 flex space-x-6 text-sm font-semibold overflow-x-auto">
+            <button onclick="switchTab('camera')" id="btnTabCamera" class="py-3.5 border-b-2 border-rose-500 text-rose-400 transition whitespace-nowrap">Kamera</button>
+            <button onclick="switchTab('notifications')" id="btnTabNotifications" class="py-3.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition whitespace-nowrap">Notifikasi</button>
+            <button onclick="switchTab('questions')" id="btnTabQuestions" class="py-3.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition whitespace-nowrap">Question Update</button>
+            <button onclick="switchTab('report')" id="btnTabReport" class="py-3.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition whitespace-nowrap">Report Issue</button>
+            <button onclick="switchTab('database')" id="btnTabDatabase" class="py-3.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition whitespace-nowrap">Database & Folder Sandi</button>
+        </nav>
+
+        <main class="flex-1 p-6 max-w-6xl mx-auto w-full">
+            <div id="tabCamera" class="space-y-4">
+                <h3 class="text-lg font-bold text-slate-200"><i class="fa-solid fa-video text-rose-400 mr-2"></i>Live Monitoring Kamera Siswa (Device ID Tagged)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="glass p-3 rounded-2xl border border-rose-500/20 space-y-2">
+                        <div class="bg-black aspect-video rounded-xl flex items-center justify-center text-slate-500 text-xs relative overflow-hidden">
+                            <span class="absolute top-2 left-2 px-2 py-0.5 bg-rose-600 text-white rounded text-[10px] font-bold">[SM56] Cam 1</span>
+                            Rahmat Setiawan
+                        </div>
+                        <button onclick="disableDevice('SM56')" class="w-full py-2 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-lg text-xs transition"><i class="fa-solid fa-ban mr-1"></i> DISABLE DEVICE (900s)</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tabNotifications" class="hidden space-y-4">
+                <h3 class="text-lg font-bold text-slate-200"><i class="fa-solid fa-bell text-rose-400 mr-2"></i>Log Pelanggaran Real-Time</h3>
+                <div id="operatorNotifList" class="space-y-2"><p class="text-slate-500 text-sm">Belum ada pelanggaran.</p></div>
+            </div>
+
+            <div id="tabQuestions" class="hidden space-y-4">
+                <h3 class="text-lg font-bold text-slate-200"><i class="fa-solid fa-file-arrow-down text-rose-400 mr-2"></i>Question Update Dari Guru</h3>
+                <div id="questionUpdateList" class="space-y-3">
+                    <div class="glass p-4 rounded-xl border border-rose-500/20 flex justify-between items-center">
+                        <div><h4 class="font-bold text-white text-sm">Matematika Minat - XI IPA 1</h4><p class="text-xs text-slate-400">Dari: Bapak Ahmad S.Pd.</p></div>
+                        <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-full text-xs font-bold">Siap / Dirilis</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tabReport" class="hidden space-y-4">
+                <h3 class="text-lg font-bold text-slate-200"><i class="fa-solid fa-headset text-rose-400 mr-2"></i>Tiket Masalah & Permintaan Sandi</h3>
+                <div id="reportListContainer" class="space-y-3"><p class="text-slate-500 text-sm">Tidak ada laporan baru.</p></div>
+            </div>
+
+            <div id="tabDatabase" class="hidden space-y-4">
+                <h3 class="text-lg font-bold text-slate-200"><i class="fa-solid fa-database text-rose-400 mr-2"></i>Master Database & Folder Terpisah</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- FOLDER EXAMIFY STUDENT -->
+                    <div class="glass p-5 rounded-2xl border border-sky-500/30 space-y-3">
+                        <h4 class="font-bold text-sky-400 text-base"><i class="fa-solid fa-folder-open mr-2"></i>Folder Examify Student</h4>
+                        <div class="space-y-2 text-xs">
+                            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">📂 Database Nama & Kelas <span class="float-right text-slate-400" id="countStudents">0 akun</span></div>
+                            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">📂 Database Nomor Peserta <span class="float-right text-slate-400">Tersinkron</span></div>
+                            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">📂 Database Password <span class="float-right text-slate-400">Terenkripsi</span></div>
+                        </div>
+                    </div>
+                    <!-- FOLDER EXAMIFY TEACHER -->
+                    <div class="glass p-5 rounded-2xl border border-emerald-500/30 space-y-3">
+                        <h4 class="font-bold text-emerald-400 text-base"><i class="fa-solid fa-folder-open mr-2"></i>Folder Examify Teacher</h4>
+                        <div class="space-y-2 text-xs">
+                            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">📂 Database Nama Guru <span class="float-right text-slate-400" id="countTeachers">0 akun</span></div>
+                            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">📂 Database Nomor Guru <span class="float-right text-slate-400">Tersinkron</span></div>
+                            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">📂 Database Password <span class="float-right text-slate-400">Terenkripsi</span></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- FOLDER SANDI MASTER -->
+                <div class="glass p-5 rounded-2xl border border-rose-500/30 space-y-3 mt-4">
+                    <h4 class="font-bold text-rose-400 text-base"><i class="fa-solid fa-folder-lock mr-2"></i>Folder Sandi (Master Password Control)</h4>
+                    <p class="text-xs text-slate-400">Semua sandi ujian diatur secara otomatis melalui database sistem terenkripsi di atas.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let isRegisterMode = false;
+        let lastReportCount = 0;
+
+        function toggleAuthMode() {
+            isRegisterMode = !isRegisterMode;
+            const regFields = document.getElementById('regFields');
+            const title = document.getElementById('authTitle');
+            const sub = document.getElementById('authSubtitle');
+            const btn = document.getElementById('authSubmitBtn');
+            const toggleText = document.getElementById('toggleAuthText');
+
+            if(isRegisterMode) {
+                regFields.classList.remove('hidden');
+                title.innerText = "REGISTRASI OPERATOR";
+                sub.innerText = "Daftarkan perangkat operator baru";
+                btn.innerText = "DAFTARKAN AKUN OPERATOR";
+                toggleText.innerText = "Sudah punya akun? Login disini";
+            } else {
+                regFields.classList.add('hidden');
+                title.innerText = "EXAMIFY OPERATOR";
+                sub.innerText = "Pusat Komando & Database Server";
+                btn.innerText = "MASUK COMMAND CENTER";
+                toggleText.innerText = "Belum buat akun operator? Buat disini";
+            }
+        }
+
+        document.getElementById('authForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const deviceCode = document.getElementById('deviceCode').value;
+            const pass = document.getElementById('authPassword').value;
+            let operators = JSON.parse(localStorage.getItem('db_operators') || '[]');
+
+            if(isRegisterMode) {
+                const name = document.getElementById('regName').value;
+                operators.push({ name, deviceCode, pass });
+                localStorage.setItem('db_operators', JSON.stringify(operators));
+                alert("Registrasi operator berhasil!");
+                toggleAuthMode();
+                return;
+            }
+
+            if(operators.length > 0 && !operators.find(o => o.deviceCode === deviceCode && o.pass === pass)) {
+                alert("Sandi atau kode perangkat operator salah!");
+                return;
+            }
+
+            if("Notification" in window) Notification.requestPermission();
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('mainDashboard').classList.remove('hidden');
+            loadData();
+            setInterval(loadData, 1500);
+        });
+
+        function disableDevice(deviceCode) {
+            let disabled = JSON.parse(localStorage.getItem('disabled_devices') || '[]');
+            if(!disabled.includes(deviceCode)) disabled.push(deviceCode);
+            localStorage.setItem('disabled_devices', JSON.stringify(disabled));
+            alert(`Perangkat ${deviceCode} berhasil di-disable! Layar terkunci 900 detik.`);
+        }
+
+        function loadData() {
+            // Update database counts
+            const students = JSON.parse(localStorage.getItem('db_students') || '[]');
+            const teachers = JSON.parse(localStorage.getItem('db_teachers') || '[]');
+            document.getElementById('countStudents').innerText = students.length + " akun";
+            document.getElementById('countTeachers').innerText = teachers.length + " akun";
+
+            // Load violations
+            const violations = JSON.parse(localStorage.getItem('operator_violations') || '[]');
+            if(violations.length > 0) {
+                let vHtml = '';
+                violations.forEach(v => { vHtml += `<div class="glass p-3 rounded-xl border border-rose-500/30 text-xs flex justify-between"><div><b class="text-rose-400">${v.student}</b>: ${v.reason}</div><span class="text-slate-400">${v.time}</span></div>`; });
+                document.getElementById('operatorNotifList').innerHTML = vHtml;
+            }
+
+            // Load reports & password requests
+            const reports = JSON.parse(localStorage.getItem('operator_reports') || '[]');
+            if(reports.length > lastReportCount) {
+                if("vibrate" in navigator) navigator.vibrate([200, 100, 200]);
+                if(Notification.permission === "granted") new Notification("Examify Operator", { body: "Tiket/Permintaan sandi baru masuk!" });
+                lastReportCount = reports.length;
+            }
+
+            let rHtml = '';
+            reports.forEach((r, idx) => {
+                if(r.status !== 'read') {
+                    rHtml += `<div class="glass p-4 rounded-xl border border-rose-500/30 space-y-3 text-xs">
+                        <div class="flex justify-between font-bold text-white"><span>${r.sender}</span><span class="text-slate-400">${r.time}</span></div>
+                        <p class="text-slate-300">${r.message}</p>
+                        <div class="flex space-x-2">
+                            <input type="text" id="reply_${idx}" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs" placeholder="Ketik sandi baru / balasan...">
+                            <button onclick="sendReply(${idx}, '${r.deviceCode}')" class="px-4 py-1.5 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-lg">Kirim Balasan</button>
+                            <button onclick="markAsRead(${idx})" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg font-bold"><i class="fa-solid fa-check"></i> Read</button>
+                        </div>
+                    </div>`;
+                }
+            });
+            document.getElementById('reportListContainer').innerHTML = rHtml || '<p class="text-slate-500 text-sm">Tidak ada tiket baru.</p>';
+        }
+
+        function sendReply(idx, targetDeviceCode) {
+            const val = document.getElementById(`reply_${idx}`).value;
+            if(!val) return alert("Tuliskan balasan/sandi!");
+            
+            // Simpan balasan realtime untuk target device
+            let replies = JSON.parse(localStorage.getItem('operator_replies') || '{}');
+            replies[targetDeviceCode] = val;
+            localStorage.setItem('operator_replies', JSON.stringify(replies));
+
+            alert("Balasan sandi terkirim secara realtime ke perangkat pemohon!");
+            markAsRead(idx);
+        }
+
+        function markAsRead(idx) {
+            const reports = JSON.parse(localStorage.getItem('operator_reports') || '[]');
+            reports[idx].status = 'read';
+            localStorage.setItem('operator_reports', JSON.stringify(reports));
+            loadData();
+        }
+
+        function switchTab(t) {
+            ['camera', 'notifications', 'questions', 'report', 'database'].forEach(tab => {
+                document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('hidden');
+                document.getElementById('btnTab' + tab.charAt(0).toUpperCase() + tab.slice(1)).className = "py-3.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition whitespace-nowrap";
+            });
+            document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.remove('hidden');
+            document.getElementById('btnTab' + t.charAt(0).toUpperCase() + t.slice(1)).className = "py-3.5 border-b-2 border-rose-500 text-rose-400 transition whitespace-nowrap";
+        }
+        setInterval(() => { document.getElementById('liveClock').innerText = new Date().toTimeString().split(' ')[0]; }, 1000);
+    </script>
+</body>
+</html>
